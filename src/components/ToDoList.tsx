@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
 	Button,
 	Popconfirm,
@@ -5,6 +6,7 @@ import {
 	Switch,
 	Table,
 	TableColumnsType,
+	Tag,
 	Tooltip,
 } from "antd";
 import { AiOutlineEdit } from "react-icons/ai";
@@ -21,101 +23,141 @@ type ITodoData = {
 
 const ToDoList = () => {
 	const navigate = useNavigate();
+	const [todoData, setTodoData] = useState<ITodoData[]>([]);
+	const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
+	const [completeTask, setCompleteTask] = useState<ITodoData[] | []>([]);
+	const handleTableChange = (paginationProps: number) => {
+		console.log("my pagination number is = ", paginationProps);
+		setPagination((prevPagination) => ({
+			...prevPagination,
+			current: paginationProps,
+		}));
+	};
+	useEffect(() => {
+		const todoListFromLocalStorage = JSON.parse(
+			localStorage.getItem("todoList") as string,
+		);
+		if (todoListFromLocalStorage) {
+			setTodoData(todoListFromLocalStorage);
+			setCompleteTask(
+				todoListFromLocalStorage.filter(
+					(item: ITodoData) => item.status === "complete",
+				),
+			);
+		}
+	}, []);
 
 	const deleteTodo = (id: string) => {
-		console.log("hello with", id);
+		const updatedTodoList: ITodoData[] = todoData.filter(
+			(todo) => todo?.id !== id,
+		);
+		setTodoData(updatedTodoList);
+		setCompleteTask(
+			updatedTodoList.filter(
+				(item: ITodoData) => item.status === "complete",
+			),
+		);
+		// Update localStorage
+		localStorage.setItem("todoList", JSON.stringify(updatedTodoList));
 	};
 
 	const columns: TableColumnsType<ITodoData> = [
 		{
-			title: "Todo Id",
-			key: "id",
+			title: "S.No.",
+			key: "serialNumber",
 			align: "left",
-
-			width: "15%",
-			// width: "80%",
-			render: (record: ITodoData) => (
-				<div className="break-all">{record?.id}</div>
-			),
+			width: "10%",
+			render: (_text, _record, index) =>
+				index + 1 + (pagination.current - 1) * pagination.pageSize,
 		},
 		{
 			title: "Title",
+			dataIndex: "title",
 			key: "title",
 			align: "left",
-
 			width: "40%",
-			render: (record: ITodoData) => (
-				<div className="break-all">{record?.title}</div>
-			),
 		},
 		{
 			title: "Status",
+			dataIndex: "status",
 			key: "status",
 			align: "left",
 			width: "15%",
-			render: (record: ITodoData) => (
-				<div className="break-all">{record?.status}</div>
-			),
+			render: (_text, record) => <div>{record.status.toUpperCase()}</div>,
 		},
-
 		{
 			title: "Priority",
+			dataIndex: "priority",
 			key: "priority",
 			align: "left",
 			width: "15%",
-			render: (record: ITodoData) => (
-				<div className="break-all">{record?.priority}</div>
+			render: (_text, record) => (
+				<Tag
+					color={
+						record.priority === "high"
+							? "red"
+							: record.priority === "low"
+								? "green"
+								: "blue"
+					}
+					key={record.id}
+				>
+					<div>{record.priority.toUpperCase()}</div>
+				</Tag>
 			),
 		},
-
 		{
 			title: "Action",
 			key: "action",
 			align: "center",
-
 			width: "15%",
 			render: (record: ITodoData) => (
 				<Space size="middle">
-					<div
-						className="inline-flex rounded-md shadow-sm"
-						role="group"
-					>
-						<Tooltip placement="bottom" title="Edit">
-							<button
-								onClick={() => navigate(`/edit/${record?.id}`)}
-								type="button"
-								className="py-2 px-2 text-lg font-medium text-gray-900 bg-white rounded-l border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
-							>
-								<AiOutlineEdit />
-							</button>
-						</Tooltip>
-						<Tooltip placement="bottom" title="Make Complete">
-							<div className="py-2 px-2 text-sm font-medium text-gray-900 bg-bg-gray-100 rounded-l border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 ">
-								<Switch size="small" defaultChecked />
+					<Tooltip placement="bottom" title="Edit">
+						<button
+							onClick={() => navigate(`/edit/${record.id}`)}
+							type="button"
+							className="py-2 px-2 text-lg font-medium text-gray-900 bg-white rounded-l border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
+						>
+							<AiOutlineEdit />
+						</button>
+					</Tooltip>
+					<Tooltip placement="bottom" title="Make Complete">
+						<div className="py-2 px-2 text-sm font-medium text-gray-900 bg-bg-gray-100 rounded-l border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 ">
+							<Switch size="small" defaultChecked />
+						</div>
+					</Tooltip>
+					<Tooltip placement="bottom" title="Profile Delete">
+						<Popconfirm
+							placement="leftTop"
+							title={"Are you sure to delete this todo?"}
+							onConfirm={() => deleteTodo(record.id)}
+							okText="Yes"
+							cancelText="No"
+						>
+							<div className="py-2 px-2 text-lg font-medium text-gray-900 bg-white rounded-l border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
+								<RiDeleteBinLine className="text-red-600 cursor-pointer" />
 							</div>
-						</Tooltip>
-						<Tooltip placement="bottom" title="Profile Delete">
-							<Popconfirm
-								placement="leftTop"
-								title={"Are you sure to delete this todo?"}
-								// onConfirm={() => deleteProfile(record.id)}
-								onConfirm={() => deleteTodo(record?.id)}
-								okText="Yes"
-								cancelText="No"
-							>
-								<div className="py-2 px-2 text-lg font-medium text-gray-900 bg-white rounded-l border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
-									<RiDeleteBinLine className="text-red-600 cursor-pointer" />
-								</div>
-							</Popconfirm>
-						</Tooltip>
-					</div>
+						</Popconfirm>
+					</Tooltip>
 				</Space>
 			),
 		},
 	];
+
 	return (
 		<div>
-			<div className="flex justify-end">
+			<div className="flex justify-end items-center gap-2">
+				<div className="-mt-2">
+					<h4 className="text-2xl font-semibold text-appPrimaryColor">
+						Total: {todoData?.length}
+					</h4>
+				</div>
+				<div className="-mt-2">
+					<h4 className="text-2xl font-semibold text-appCompleteColor">
+						Complete: {completeTask?.length}
+					</h4>
+				</div>
 				<Button
 					type="primary"
 					className="flex justify-center items-center gap-1 text-white mb-2"
@@ -128,12 +170,11 @@ const ToDoList = () => {
 			<div className="mb-6">
 				<Table
 					columns={columns}
-					dataSource={todoData}
-					rowKey={"id"}
+					dataSource={todoData.length > 0 ? todoData : []}
+					rowKey="id"
 					pagination={{
-						defaultPageSize: 10,
-						showSizeChanger: true,
-						pageSizeOptions: ["10", "20", "30"],
+						...pagination,
+						onChange: handleTableChange,
 					}}
 				/>
 			</div>
@@ -142,72 +183,3 @@ const ToDoList = () => {
 };
 
 export default ToDoList;
-
-const todoData: ITodoData[] = [
-	{
-		id: "1",
-		title: "Task 1",
-		status: "complete",
-		priority: "low",
-	},
-	{
-		id: "2",
-		title: "Task 2",
-		status: "incomplete",
-		priority: "high",
-	},
-	{
-		id: "3",
-		title: "Task 3",
-		status: "complete",
-		priority: "medium",
-	},
-	{
-		id: "4",
-		title: "Task 4",
-		status: "incomplete",
-		priority: "low",
-	},
-	{
-		id: "5",
-		title: "Task 5",
-		status: "complete",
-		priority: "high",
-	},
-	{
-		id: "6",
-		title: "Task 6",
-		status: "incomplete",
-		priority: "medium",
-	},
-	{
-		id: "7",
-		title: "Task 7",
-		status: "complete",
-		priority: "low",
-	},
-	{
-		id: "8",
-		title: "Task 8",
-		status: "incomplete",
-		priority: "medium",
-	},
-	{
-		id: "9",
-		title: "Task 9",
-		status: "complete",
-		priority: "high",
-	},
-	{
-		id: "10",
-		title: "Task 10",
-		status: "incomplete",
-		priority: "low",
-	},
-	{
-		id: "11",
-		title: "Task 11",
-		status: "incomplete",
-		priority: "low",
-	},
-];

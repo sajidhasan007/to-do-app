@@ -1,38 +1,58 @@
-import { generateRandomId } from "@/lib/helpers";
-import React from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useForm } from "react-hook-form";
 import { IoArrowBack } from "react-icons/io5";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 type ITodoData = {
+	id: string;
 	title: string;
 	status: "complete" | "incomplete";
 	priority: "low" | "medium" | "high";
 };
 
-const AddToDo = () => {
-	const { handleSubmit, register } = useForm<ITodoData>();
+const EditTodo = () => {
+	const { handleSubmit, register, setValue } = useForm<ITodoData>();
 	const navigate = useNavigate();
+	const { id } = useParams();
+	const [todo, setTodo] = useState<ITodoData[] | null>(null);
+	const [editTodo, setEditTodo] = useState<ITodoData[]>([]);
+
+	const fetchTodoFromLocalStorage = () => {
+		const storedTodo = localStorage.getItem("todoList");
+		if (storedTodo) {
+			const parsedTodo: ITodoData[] = JSON.parse(storedTodo);
+			setTodo(parsedTodo);
+			setEditTodo(parsedTodo.filter((item: ITodoData) => item.id === id));
+		}
+	};
+
+	useEffect(() => {
+		fetchTodoFromLocalStorage();
+	}, []);
+
+	useEffect(() => {
+		console.log("my todo list is = ", editTodo);
+		if (todo) {
+			setValue("title", editTodo?.[0]?.title);
+			setValue("status", editTodo?.[0]?.status);
+			setValue("priority", editTodo?.[0]?.priority);
+		}
+	}, [todo, setValue]);
 
 	const onSubmit = (data: ITodoData) => {
-		const existingTodoList = JSON.parse(
-			localStorage.getItem("todoList") || "[]",
-		);
-
-		const id = generateRandomId();
-
-		const newTodoItem = { id, ...data };
-		const updatedTodoList = [...existingTodoList, newTodoItem];
-
-		localStorage.setItem("todoList", JSON.stringify(updatedTodoList));
-
-		navigate("/");
+		if (!todo) return;
+		const index = todo.findIndex((item: ITodoData) => item.id === id);
+		data.id = id as string;
+		todo[index] = data;
+		localStorage.setItem("todoList", JSON.stringify(todo));
+		navigate(`/`);
 	};
 
 	return (
 		<div>
 			<div className="flex justify-between mb-4">
-				<h1 className="text-3xl text-appPrimaryColor">Add New Todo</h1>
+				<h1 className="text-3xl text-appPrimaryColor">Edit Todo</h1>
 				<div
 					className="flex items-center gap-1 cursor-pointer text-appPrimaryColor hover:underline"
 					onClick={() => navigate(`/`)}
@@ -93,4 +113,4 @@ const AddToDo = () => {
 	);
 };
 
-export default AddToDo;
+export default EditTodo;

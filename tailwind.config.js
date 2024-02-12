@@ -9,6 +9,7 @@ export default {
 		extend: {
 			colors: {
 				appPrimaryColor: "#07789C",
+				appCompleteColor: "#0bd674",
 			},
 		},
 	},

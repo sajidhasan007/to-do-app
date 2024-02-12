@@ -1,10 +1,7 @@
-import { AddToDo, ToDoList } from "@/components";
+import { AddToDo, EditTodo, ToDoList } from "@/components";
 import { Loading } from "@/components/common";
 import { Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-// import ListPage from './ListPage';
-// import EditPage from './EditPage';
-// import AddTodoPage from './AddTodoPage';
 
 function RouteList() {
 	return (
@@ -18,7 +15,6 @@ function RouteList() {
 						</Suspense>
 					}
 				/>
-
 				<Route
 					path="/add"
 					element={
@@ -27,7 +23,14 @@ function RouteList() {
 						</Suspense>
 					}
 				/>
-				{/* <Route path="/edit/:id" element={<EditPage />} /> */}
+				<Route
+					path="/edit/:id"
+					element={
+						<Suspense fallback={<Loading />}>
+							<EditTodo />
+						</Suspense>
+					}
+				/>
 			</Routes>
 		</Router>
 	);
