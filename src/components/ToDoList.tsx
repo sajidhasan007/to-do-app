@@ -46,7 +46,7 @@ const ToDoList = () => {
 				),
 			);
 		}
-	}, []);
+	}, [todoData]);
 
 	const deleteTodo = (id: string) => {
 		const updatedTodoList: ITodoData[] = todoData.filter(
@@ -162,6 +162,7 @@ const ToDoList = () => {
 		if (!todoData) return;
 		const index = todoData.findIndex((item: ITodoData) => item.id === id);
 		todoData[index].status = e ? "complete" : "incomplete";
+		setTodoData(todoData);
 		localStorage.setItem("todoList", JSON.stringify(todoData));
 	};
 
