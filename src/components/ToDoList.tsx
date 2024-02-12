@@ -124,10 +124,22 @@ const ToDoList = () => {
 					</Tooltip>
 					<Tooltip placement="bottom" title="Make Complete">
 						<div className="py-2 px-2 text-sm font-medium text-gray-900 bg-bg-gray-100 rounded-l border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 ">
-							<Switch size="small" defaultChecked />
+							{record.status === "complete" ? (
+								<Switch
+									// onChange={makeComplete}
+									size="small"
+									defaultChecked
+									disabled
+								/>
+							) : (
+								<Switch
+									size="small"
+									onChange={(e) => makeComplete(e, record.id)}
+								/>
+							)}
 						</div>
 					</Tooltip>
-					<Tooltip placement="bottom" title="Profile Delete">
+					<Tooltip placement="bottom" title="Delete Task">
 						<Popconfirm
 							placement="leftTop"
 							title={"Are you sure to delete this todo?"}
@@ -144,6 +156,13 @@ const ToDoList = () => {
 			),
 		},
 	];
+
+	const makeComplete = (e: any, id: string) => {
+		if (!todoData) return;
+		const index = todoData.findIndex((item: ITodoData) => item.id === id);
+		todoData[index].status = e ? "complete" : "incomplete";
+		localStorage.setItem("todoList", JSON.stringify(todoData));
+	};
 
 	return (
 		<div>

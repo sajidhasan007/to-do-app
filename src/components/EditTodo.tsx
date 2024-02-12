@@ -32,7 +32,6 @@ const EditTodo = () => {
 	}, []);
 
 	useEffect(() => {
-		console.log("my todo list is = ", editTodo);
 		if (todo) {
 			setValue("title", editTodo?.[0]?.title);
 			setValue("status", editTodo?.[0]?.status);
