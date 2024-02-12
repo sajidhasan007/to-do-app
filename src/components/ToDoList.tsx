@@ -1,8 +1,16 @@
-import { Popconfirm, Space, Table, TableColumnsType, Tooltip } from "antd";
+import {
+	Button,
+	Popconfirm,
+	Space,
+	Switch,
+	Table,
+	TableColumnsType,
+	Tooltip,
+} from "antd";
 import { AiOutlineEdit } from "react-icons/ai";
-import { CiViewList } from "react-icons/ci";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
+import { GoPlus } from "react-icons/go";
 
 type ITodoData = {
 	id: string;
@@ -22,9 +30,9 @@ const ToDoList = () => {
 		{
 			title: "Todo Id",
 			key: "id",
-			align: "center",
+			align: "left",
 
-			// // width: "10%",
+			width: "15%",
 			// width: "80%",
 			render: (record: ITodoData) => (
 				<div className="break-all">{record?.id}</div>
@@ -33,9 +41,9 @@ const ToDoList = () => {
 		{
 			title: "Title",
 			key: "title",
-			align: "center",
+			align: "left",
 
-			// width: "80%",
+			width: "40%",
 			render: (record: ITodoData) => (
 				<div className="break-all">{record?.title}</div>
 			),
@@ -43,8 +51,8 @@ const ToDoList = () => {
 		{
 			title: "Status",
 			key: "status",
-			align: "center",
-
+			align: "left",
+			width: "15%",
 			render: (record: ITodoData) => (
 				<div className="break-all">{record?.status}</div>
 			),
@@ -53,8 +61,8 @@ const ToDoList = () => {
 		{
 			title: "Priority",
 			key: "priority",
-			align: "center",
-
+			align: "left",
+			width: "15%",
 			render: (record: ITodoData) => (
 				<div className="break-all">{record?.priority}</div>
 			),
@@ -65,7 +73,7 @@ const ToDoList = () => {
 			key: "action",
 			align: "center",
 
-			// width: "10%",
+			width: "15%",
 			render: (record: ITodoData) => (
 				<Space size="middle">
 					<div
@@ -76,21 +84,15 @@ const ToDoList = () => {
 							<button
 								onClick={() => navigate(`/edit/${record?.id}`)}
 								type="button"
-								className="py-2 px-2 text-sm font-medium text-gray-900 bg-white rounded-l border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
+								className="py-2 px-2 text-lg font-medium text-gray-900 bg-white rounded-l border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
 							>
 								<AiOutlineEdit />
 							</button>
 						</Tooltip>
-						<Tooltip placement="bottom" title="Details">
-							<button
-								type="button"
-								onClick={() =>
-									navigate(`/details/${record?.id}`)
-								}
-								className="py-2 px-2 text-sm font-medium text-gray-900 bg-white rounded-l border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
-							>
-								<CiViewList />
-							</button>
+						<Tooltip placement="bottom" title="Make Complete">
+							<div className="py-2 px-2 text-sm font-medium text-gray-900 bg-bg-gray-100 rounded-l border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 ">
+								<Switch size="small" defaultChecked />
+							</div>
 						</Tooltip>
 						<Tooltip placement="bottom" title="Profile Delete">
 							<Popconfirm
@@ -101,10 +103,7 @@ const ToDoList = () => {
 								okText="Yes"
 								cancelText="No"
 							>
-								<div
-									// type="button"
-									className="py-2 px-2 text-sm font-medium text-gray-900 bg-white rounded-l border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700"
-								>
+								<div className="py-2 px-2 text-lg font-medium text-gray-900 bg-white rounded-l border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
 									<RiDeleteBinLine className="text-red-600 cursor-pointer" />
 								</div>
 							</Popconfirm>
@@ -116,6 +115,16 @@ const ToDoList = () => {
 	];
 	return (
 		<div>
+			<div className="flex justify-end">
+				<Button
+					type="primary"
+					className="flex justify-center items-center gap-1 text-white mb-2"
+					onClick={() => navigate("/add")}
+				>
+					Add New
+					<GoPlus className="text-white font-bold" />
+				</Button>
+			</div>
 			<div className="mb-6">
 				<Table
 					columns={columns}

@@ -2,7 +2,7 @@
 
 import { TodoHeader } from "./components";
 import RouteList from "./routes";
-import { ConfigProvider, theme } from "antd";
+import { ConfigProvider } from "antd";
 
 const App = () => {
 	return (
@@ -10,9 +10,13 @@ const App = () => {
 			theme={{
 				// algorithm: theme.darkAlgorithm,
 				token: {
-					colorPrimary: "#424242",
+					colorPrimary: "#07789C",
+					// colorTextLightSolid: "red",
 				},
 				components: {
+					Switch: {
+						// handleBg: "#075985",
+					},
 					// Button: {
 					// 	// defaultBg: "#424242",
 					// 	colorPrimary: "#424242",
