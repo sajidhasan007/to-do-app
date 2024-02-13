@@ -3,48 +3,41 @@ import { useForm } from "react-hook-form";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-
-type ITodoData = {
-	id: string;
-	title: string;
-	status: "complete" | "incomplete";
-	priority: "low" | "medium" | "high";
-};
+import { getTodo, setTodo } from "@/api/todo/todo";
+import { ITodoData } from "@/model/todoModel";
 
 const EditTodo = () => {
 	const { handleSubmit, register, setValue } = useForm<ITodoData>();
 	const navigate = useNavigate();
 	const { id } = useParams();
-	const [todo, setTodo] = useState<ITodoData[] | null>(null);
+	const [todoData, setTodoData] = useState<ITodoData[] | null>(null);
 	const [editTodo, setEditTodo] = useState<ITodoData[]>([]);
-
-	const fetchTodoFromLocalStorage = () => {
-		const storedTodo = localStorage.getItem("todoList");
-		if (storedTodo) {
-			const parsedTodo: ITodoData[] = JSON.parse(storedTodo);
-			setTodo(parsedTodo);
-			setEditTodo(parsedTodo.filter((item: ITodoData) => item.id === id));
-		}
-	};
 
 	useEffect(() => {
 		fetchTodoFromLocalStorage();
 	}, []);
 
 	useEffect(() => {
-		if (todo) {
+		if (todoData) {
 			setValue("title", editTodo?.[0]?.title);
 			setValue("status", editTodo?.[0]?.status);
 			setValue("priority", editTodo?.[0]?.priority);
 		}
-	}, [todo, setValue]);
+	}, [todoData, setValue]);
+	const fetchTodoFromLocalStorage = async () => {
+		const storedTodo: ITodoData[] | null = await getTodo();
+		if (storedTodo) {
+			setTodoData(storedTodo);
+			setEditTodo(storedTodo.filter((item: ITodoData) => item.id === id));
+		}
+	};
 
-	const onSubmit = (data: ITodoData) => {
-		if (!todo) return;
-		const index = todo.findIndex((item: ITodoData) => item.id === id);
+	const onSubmit = async (data: ITodoData) => {
+		if (!todoData) return;
+		const index = todoData.findIndex((item: ITodoData) => item.id === id);
 		data.id = id as string;
-		todo[index] = data;
-		localStorage.setItem("todoList", JSON.stringify(todo));
+		todoData[index] = data;
+		await setTodo(todoData);
 		navigate(`/`);
 	};
 

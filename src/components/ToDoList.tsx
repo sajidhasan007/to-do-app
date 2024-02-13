@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import {
@@ -14,13 +15,8 @@ import { AiOutlineEdit } from "react-icons/ai";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { GoPlus } from "react-icons/go";
-
-type ITodoData = {
-	id: string;
-	title: string;
-	status: string;
-	priority: string;
-};
+import { getTodo, setTodo } from "@/api/todo/todo";
+import { ITodoData } from "@/model/todoModel";
 
 const ToDoList = () => {
 	const navigate = useNavigate();
@@ -28,38 +24,47 @@ const ToDoList = () => {
 	const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
 	const [completeTask, setCompleteTask] = useState<ITodoData[] | []>([]);
 	const handleTableChange = (paginationProps: number) => {
-		console.log("my pagination number is = ", paginationProps);
 		setPagination((prevPagination) => ({
 			...prevPagination,
 			current: paginationProps,
 		}));
 	};
 	useEffect(() => {
-		const todoListFromLocalStorage = JSON.parse(
-			localStorage.getItem("todoList") as string,
-		);
+		getTodoData();
+	}, []);
+
+	const getTodoData = async () => {
+		const todoListFromLocalStorage = await getTodo();
 		if (todoListFromLocalStorage) {
 			setTodoData(todoListFromLocalStorage);
-			setCompleteTask(
-				todoListFromLocalStorage.filter(
-					(item: ITodoData) => item.status === "complete",
-				),
-			);
+			checkCompleteTask(todoListFromLocalStorage);
 		}
-	}, [todoData]);
+	};
 
-	const deleteTodo = (id: string) => {
+	const deleteTodo = async (id: string) => {
 		const updatedTodoList: ITodoData[] = todoData.filter(
 			(todo) => todo?.id !== id,
 		);
 		setTodoData(updatedTodoList);
+		checkCompleteTask(updatedTodoList);
+		await setTodo(updatedTodoList);
+	};
+
+	const makeComplete = async (e: any, id: string) => {
+		if (!todoData) return;
+		const index = todoData.findIndex((item: ITodoData) => item.id === id);
+		todoData[index].status = e ? "complete" : "incomplete";
+		setTodoData(todoData);
 		setCompleteTask(
-			updatedTodoList.filter(
-				(item: ITodoData) => item.status === "complete",
-			),
+			todoData.filter((item: ITodoData) => item.status === "complete"),
 		);
-		// Update localStorage
-		localStorage.setItem("todoList", JSON.stringify(updatedTodoList));
+		await setTodo(todoData);
+	};
+
+	const checkCompleteTask = (data: ITodoData[]) => {
+		setCompleteTask(
+			data.filter((item: ITodoData) => item.status === "complete"),
+		);
 	};
 
 	const columns: TableColumnsType<ITodoData> = [
@@ -157,14 +162,6 @@ const ToDoList = () => {
 			),
 		},
 	];
-
-	const makeComplete = (e: any, id: string) => {
-		if (!todoData) return;
-		const index = todoData.findIndex((item: ITodoData) => item.id === id);
-		todoData[index].status = e ? "complete" : "incomplete";
-		setTodoData(todoData);
-		localStorage.setItem("todoList", JSON.stringify(todoData));
-	};
 
 	return (
 		<div>
