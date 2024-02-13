@@ -1,5 +1,4 @@
 import { generateRandomId } from "@/lib/helpers";
-import React from "react";
 import { useForm } from "react-hook-form";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
